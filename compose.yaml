@@ -1,0 +1,52 @@
+﻿services:
+  ecommerceapp:
+    image: ecommerceapp
+    build:
+      context: .
+      dockerfile: EcommerceApp/Dockerfile
+    depends_on:
+      - ecommerceapi
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  ecommerceapi:
+    image: ecommerceapi
+    build:
+      context: .
+      dockerfile: EcommerceApi/Dockerfile
+    depends_on:
+      - sqlserver
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=EcommerceDb;User Id=SA;Password=Contra123#;TrustServerCertificate=True;
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Contra123#
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  sql_data:
