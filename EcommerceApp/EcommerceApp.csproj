@@ -17,4 +17,10 @@
       <ProjectReference Include="..\EcommerceApi\EcommerceApi.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
+      <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.5" />
+      <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="10.0.0-preview.5.25277.114" />
+    </ItemGroup>
+
 </Project>

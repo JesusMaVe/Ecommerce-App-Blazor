@@ -1,23 +1,56 @@
-﻿@inherits LayoutComponentBase
+﻿@using EcommerceApp.Services
+@inherits LayoutComponentBase
+@inject CustomAuthenticationStateProvider AuthStateProvider
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu/>
+<div class="relative flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-red-950 to-orange-950 text-white">
+    <div class="md:w-64 md:fixed md:inset-y-0 md:left-0 bg-gradient-to-b from-red-900 via-orange-900 to-red-950 shadow-2xl shadow-orange-900/40 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-radial from-orange-600/15 via-transparent to-transparent animate-pulse opacity-50"></div>
+        
+        <NavMenu />
     </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+    <main class="flex-1 md:ml-64">
+        <div class="h-14 bg-red-950/90 backdrop-blur-md border-b border-orange-600/25 flex items-center justify-end px-4 sticky top-0 z-20 shadow-lg">
+            <a href="https://docs.microsoft.com/aspnet/" 
+               target="_blank" 
+               class="text-orange-200/80 font-medium hover:text-orange-400 hover:-translate-y-0.5 transition-all duration-300 relative group">
+                About
+                <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300"></span>
+            </a>
         </div>
 
-        <article class="content px-4">
+        <article class="p-6 m-4 bg-gradient-to-br from-red-950/70 to-orange-950/50 rounded-lg shadow-2xl backdrop-blur-sm border border-orange-600/15 animate-float">
             @Body
         </article>
     </main>
 </div>
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+<div id="blazor-error-ui" class="hidden fixed bottom-0 left-0 right-0 bg-red-800/95 text-white p-3 z-50 border-t-2 border-orange-400/40 backdrop-blur-lg">
+    <div class="flex items-center justify-between">
+        <span>An unhandled error has occurred.</span>
+        <button class="ml-4 bg-orange-400/25 hover:bg-orange-400/40 rounded-full w-6 h-6 flex items-center justify-center transition-all duration-300 hover:scale-110" 
+                onclick="document.getElementById('blazor-error-ui').style.display = 'none'">&times;</button>
+    </div>
 </div>
+
+<style>
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .bg-gradient-radial {
+        background: radial-gradient(circle at top right, var(--tw-gradient-stops));
+    }
+    
+
+</style>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await AuthStateProvider.InitializeAuthenticationStateAsync();
+        }
+    }
+}

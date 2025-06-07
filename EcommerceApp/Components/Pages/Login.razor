@@ -1,0 +1,203 @@
+@page "/login"
+@using EcommerceApp.Models
+@using EcommerceApp.Services
+@inject AuthService AuthService
+@inject CustomAuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<div class="min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <h3 class="text-3xl md:text-4xl font-bold text-orange-200 mb-4 relative inline-block text-shadow-glow">
+                Iniciar Sesión
+                <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1/2 h-0.5 bg-gradient-to-r from-transparent via-orange-500 to-transparent rounded-full"></div>
+            </h3>
+        </div>
+
+        <div class="bg-red-950/40 backdrop-blur-lg rounded-xl border border-orange-600/25 shadow-2xl p-6 md:p-8 animate-float">
+            <EditForm Model="@loginModel" OnValidSubmit="HandleLogin" class="space-y-6">
+                <DataAnnotationsValidator />
+
+                <div class="form-group">
+                    <label class="block text-orange-200/90 font-medium text-sm mb-2 transition-colors duration-300">
+                        Email
+                    </label>
+                    <div class="relative">
+                        <InputText
+                            class="w-full px-4 py-3 bg-red-950/30 border border-orange-600/30 rounded-lg text-white placeholder-orange-200/50 backdrop-blur-sm transition-all duration-300 focus:outline-none focus:border-orange-500/80 focus:ring-2 focus:ring-orange-500/30 focus:bg-red-950/50 hover:border-orange-600/50"
+                            @bind-Value="loginModel.Email"
+                            placeholder="Ingrese su email" />
+
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-orange-500/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                            </svg>
+                        </div>
+                    </div>
+                    <ValidationMessage For="@(() => loginModel.Email)" class="text-red-400 text-sm mt-1 block animate-fadeIn" />
+                </div>
+
+                <div class="form-group">
+                    <label class="block text-orange-200/90 font-medium text-sm mb-2 transition-colors duration-300">
+                        Contraseña
+                    </label>
+                    <div class="relative">
+                        <InputText
+                            type="@(showPassword ? "text" : "password")"
+                            class="w-full px-4 py-3 bg-red-950/30 border border-orange-600/30 rounded-lg text-white placeholder-orange-200/50 backdrop-blur-sm transition-all duration-300 focus:outline-none focus:border-orange-500/80 focus:ring-2 focus:ring-orange-500/30 focus:bg-red-950/50 hover:border-orange-600/50 pr-12"
+                            @bind-Value="loginModel.Password"
+                            placeholder="Ingrese su contraseña" />
+
+                        <button
+                            type="button"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-orange-500/60 hover:text-orange-400 transition-colors duration-200"
+                            @onclick="TogglePasswordVisibility">
+                            @if (showPassword)
+                            {
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                            </svg>
+                            }
+                            else
+                            {
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            }
+                        </button>
+                    </div>
+                    <ValidationMessage For="@(() => loginModel.Password)" class="text-red-400 text-sm mt-1 block animate-fadeIn" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                <div class="bg-red-800/25 border border-red-600/50 text-white p-4 rounded-lg backdrop-blur-sm animate-pulse-slow">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="text-sm">
+                            @foreach (var line in errorMessage.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                            {
+                            <div>@line</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                }
+
+                <button
+                    type="submit"
+                    class="w-full py-3 px-6 bg-gradient-to-r from-red-700 to-orange-600 hover:from-red-600 hover:to-orange-500 text-white font-semibold rounded-lg shadow-lg shadow-red-700/40 hover:shadow-red-600/60 hover:-translate-y-1 active:translate-y-0 active:shadow-red-700/40 transition-all duration-300 relative overflow-hidden group"
+                    disabled="@isSubmitting">
+
+                    <div class="absolute inset-0 bg-gradient-radial from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                    <div class="relative z-10 flex items-center justify-center">
+                        @if (isSubmitting)
+                        {
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Iniciando Sesión...</span>
+                        }
+                        else
+                        {
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"/>
+                        </svg>
+                        <span>Iniciar Sesión</span>
+                        }
+                    </div>
+                </button>
+
+                <div class="text-center mt-6 space-y-2">
+                    <p class="text-orange-200/70 text-sm">
+                        ¿No tienes una cuenta?
+                        <a href="/register" class="text-orange-400 hover:text-orange-300 hover:underline transition-colors duration-200 font-medium ml-1">
+                            Regístrate aquí
+                        </a>
+                    </p>
+                    <p class="text-orange-200/70 text-sm">
+                        <a href="/forgot-password" class="text-orange-400 hover:text-orange-300 hover:underline transition-colors duration-200">
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    </p>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-shadow-glow {
+        text-shadow: 0 0 15px rgba(234, 88, 12, 0.6);
+    }
+
+    .bg-gradient-radial {
+        background: radial-gradient(circle, var(--tw-gradient-stops));
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .animate-pulse-slow {
+        animation: pulse-slow 2s infinite ease-in-out;
+    }
+
+    /* Estilos específicos para los campos de formulario en estado focus */
+    .form-group input:focus + .absolute svg {
+        color: rgba(234, 88, 12, 1);
+    }
+</style>
+
+@code {
+private LoginDto loginModel = new();
+private string errorMessage = string.Empty;
+private bool showPassword = false;
+private bool isSubmitting = false;
+
+private void TogglePasswordVisibility()
+{
+showPassword = !showPassword;
+}
+
+private async Task HandleLogin()
+{
+isSubmitting = true;
+errorMessage = string.Empty;
+
+try
+{
+var response = await AuthService.LoginAsync(loginModel);
+if (response.Success)
+{
+await AuthStateProvider.MarkUserAsAuthenticated(response.Data!.Token);
+NavigationManager.NavigateTo("/profile");
+}
+else
+{
+errorMessage = response.Message;
+foreach (var error in response.Errors)
+{
+errorMessage += $"\n{error}";
+}
+}
+}
+catch (Exception ex)
+{
+errorMessage = "Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo.";
+}
+finally
+{
+isSubmitting = false;
+}
+}
+}
